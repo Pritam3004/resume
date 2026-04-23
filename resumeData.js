@@ -41,8 +41,7 @@ var resumeData = {
       "address": "Address:",
       "sendMessage": "Send me a message",
       "getSocial": "Get social",
-      "downloadCV": "Download CV",
-      "printCV": "Print CV"
+      "pdfResume": "PDF Resume"
     },
 
     "tabs": {
@@ -287,8 +286,7 @@ var resumeData = {
       "address": "Dirección:",
       "sendMessage": "Envíame un mensaje",
       "getSocial": "Redes sociales",
-      "downloadCV": "Descargar CV",
-      "printCV": "Imprimir CV"
+      "pdfResume": "CV en PDF"
     },
 
     "tabs": {

@@ -22,8 +22,7 @@
     <!-- MAIN MENU -->
     <div class="header_menu_container">
       <ul class="download_print_buttons horizontal_list">
-        <li><a href="PritamPawar_Valencia.pdf" download="PritamPawar_Resume.pdf"><span class="icon fa-solid fa-download"></span><span id="btn-download">Download CV</span></a></li>
-        <li><a href="#" onclick="window.print(); return false;"><span class="icon fa-solid fa-print"></span><span id="btn-print">Print CV</span></a></li>
+        <li><a href="PritamPawar_Valencia.pdf" target="_blank" rel="noopener"><span class="icon fa-solid fa-file-pdf"></span><span id="btn-pdf">PDF Resume</span></a></li>
         <li class="lang-toggle">
           <a href="#" id="lang-en" class="active" onclick="switchLang('en'); return false;">EN</a>
           <a href="#" id="lang-es" onclick="switchLang('es'); return false;">ES</a>
@@ -41,11 +40,6 @@
     </div>
     <div class="hello_content" id="sidebar-greeting"></div>
     <div class="contact_details_content" id="sidebar-contact"></div>
-    <a id="sidebar-email-btn" href="#" class="send_message_button">
-      <span class="cut1"></span>
-      <span class="cut2"></span>
-      <span class="content">Send me a message <span class="fontawesome-double-angle-right"></span></span>
-    </a>
     <div class="get_social_content">
       <h2>Get social</h2>
       <ul class="social_icons horizontal_list" id="sidebar-social"></ul>
@@ -122,8 +116,7 @@
     document.getElementById('header-occupation').textContent = data.header.occupation;
 
     /* UI buttons */
-    document.getElementById('btn-download').textContent = ui.downloadCV;
-    document.getElementById('btn-print').textContent = ui.printCV;
+    document.getElementById('btn-pdf').textContent = ui.pdfResume;
 
     /* Sidebar – greeting */
     var greet = data.sidebar.greeting;
@@ -136,22 +129,17 @@
     document.getElementById('sidebar-contact').innerHTML =
       '<h2>' + esc(ui.contactDetails) + '</h2>' +
       '<p class="purple">' + esc(ui.phone) + '</p><p>' + esc(c.phone) + '</p>' +
-      '<p class="purple">' + esc(ui.email) + '</p><p>' + esc(c.email) + '</p>' +
+      '<p class="purple">' + esc(ui.email) + '</p><p><a href="mailto:' + esc(c.email) + '">' + esc(c.email) + '</a></p>' +
       '<p class="purple">' + esc(ui.address) + '</p>' +
       '<p>' + esc(addr.street) + '</p>' +
       '<p>' + esc(addr.city) + '</p>' +
       (addr.zip ? '<p>' + esc(addr.zip) + '</p>' : '');
-    document.getElementById('sidebar-email-btn').href = 'mailto:' + c.email;
-
-    /* Sidebar – message button */
-    document.querySelector('.send_message_button .content').innerHTML =
-      esc(ui.sendMessage) + ' <span class="fontawesome-double-angle-right"></span>';
 
     /* Sidebar – social */
     document.querySelector('.get_social_content h2').textContent = ui.getSocial;
     document.getElementById('sidebar-social').innerHTML =
       data.sidebar.social.map(function (s) {
-        return '<li><a class="' + esc(s.platform) + '" href="' + esc(s.url) + '">' +
+        return '<li><a class="' + esc(s.platform) + '" href="' + esc(s.url) + '" target="_blank" rel="noopener">' +
           '<span class="' + esc(s.icon) + '"></span>' +
           '<span class="invisible">' + esc(s.platform) + '</span></a></li>';
       }).join('');
