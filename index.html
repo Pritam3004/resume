@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pritam Pawar — Technical Architect</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -21,8 +22,12 @@
     <!-- MAIN MENU -->
     <div class="header_menu_container">
       <ul class="download_print_buttons horizontal_list">
-        <li><a href="PritamPawar_Valencia.pdf" download="PritamPawar_Resume.pdf"><span class="icon entypo-download"></span>Download CV</a></li>
-        <li><a href="#" onclick="window.print(); return false;"><span class="icon entypo-print"></span>Print CV</a></li>
+        <li><a href="PritamPawar_Valencia.pdf" download="PritamPawar_Resume.pdf"><span class="icon entypo-download"></span><span id="btn-download">Download CV</span></a></li>
+        <li><a href="#" onclick="window.print(); return false;"><span class="icon entypo-print"></span><span id="btn-print">Print CV</span></a></li>
+        <li class="lang-selector">
+          <a href="#" id="lang-en" class="lang-btn active" onclick="switchLang('en'); return false;">EN</a>
+          <a href="#" id="lang-es" class="lang-btn" onclick="switchLang('es'); return false;">ES</a>
+        </li>
       </ul>
       <div class="clear"></div>
       <ul class="header_menu horizontal_list" id="tab-menu"></ul>
@@ -63,9 +68,33 @@
 
 <!-- DATA-DRIVEN RENDERING SCRIPT -->
 <script>
+  var currentLang = 'en';
+  var currentTab = null;
+
   document.addEventListener('DOMContentLoaded', function () {
-    renderResume(resumeData);
+    renderResume(resumeData[currentLang]);
   });
+
+  /* ── language switch ── */
+  function switchLang(lang) {
+    /* remember which tab was active */
+    var activeLink = document.querySelector('.header_menu a.active');
+    currentTab = activeLink ? activeLink.getAttribute('data-tab') : null;
+    currentLang = lang;
+
+    /* update lang button states */
+    document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+    document.getElementById('lang-es').classList.toggle('active', lang === 'es');
+
+    /* re-render */
+    renderResume(resumeData[lang]);
+
+    /* restore the previously-active tab */
+    if (currentTab) {
+      var tabLink = document.querySelector('.header_menu a[data-tab="' + currentTab + '"]');
+      if (tabLink) tabLink.click();
+    }
+  }
 
   /* ── helpers ── */
   function esc(text) {
@@ -75,13 +104,7 @@
   }
 
   function horizontalLine() {
-    return '<div class="horizontal_line">' +
-      '<div class="line_left"></div>' +
-      '<div class="left_circle"></div>' +
-      '<div class="central_circle"></div>' +
-      '<div class="right_circle"></div>' +
-      '<div class="line_right"></div>' +
-    '</div>';
+    return '<div class="horizontal_line"></div>';
   }
 
   function listItems(items) {
@@ -91,10 +114,16 @@
 
   /* ── main renderer ── */
   function renderResume(data) {
+    var ui = data.ui;
+
     /* Header */
     document.getElementById('header-name').innerHTML =
       esc(data.header.name.first) + ' <span class="purple">' + esc(data.header.name.last) + '</span>';
     document.getElementById('header-occupation').textContent = data.header.occupation;
+
+    /* UI buttons */
+    document.getElementById('btn-download').textContent = ui.downloadCV;
+    document.getElementById('btn-print').textContent = ui.printCV;
 
     /* Sidebar – greeting */
     var greet = data.sidebar.greeting;
@@ -105,16 +134,21 @@
     var c = data.sidebar.contact;
     var addr = c.address;
     document.getElementById('sidebar-contact').innerHTML =
-      '<h2>Contact details</h2>' +
-      '<p class="purple">Phone:</p><p>' + esc(c.phone) + '</p>' +
-      '<p class="purple">Email:</p><p>' + esc(c.email) + '</p>' +
-      '<p class="purple">Address:</p>' +
+      '<h2>' + esc(ui.contactDetails) + '</h2>' +
+      '<p class="purple">' + esc(ui.phone) + '</p><p>' + esc(c.phone) + '</p>' +
+      '<p class="purple">' + esc(ui.email) + '</p><p>' + esc(c.email) + '</p>' +
+      '<p class="purple">' + esc(ui.address) + '</p>' +
       '<p>' + esc(addr.street) + '</p>' +
       '<p>' + esc(addr.city) + '</p>' +
-      '<p>' + esc(addr.zip) + '</p>';
+      (addr.zip ? '<p>' + esc(addr.zip) + '</p>' : '');
     document.getElementById('sidebar-email-btn').href = 'mailto:' + c.email;
 
+    /* Sidebar – message button */
+    document.querySelector('.send_message_button .content').innerHTML =
+      esc(ui.sendMessage) + ' <span class="fontawesome-double-angle-right"></span>';
+
     /* Sidebar – social */
+    document.querySelector('.get_social_content h2').textContent = ui.getSocial;
     document.getElementById('sidebar-social').innerHTML =
       data.sidebar.social.map(function (s) {
         return '<li><a class="' + esc(s.platform) + '" href="' + esc(s.url) + '">' +
@@ -122,8 +156,9 @@
           '<span class="invisible">' + esc(s.platform) + '</span></a></li>';
       }).join('');
 
-    /* Tab menu + content */
-    var tabKeys = Object.keys(data.tabs);
+    /* Tab menu + content — enforce desired order */
+    var tabOrder = ['profile', 'skills', 'work', 'projects', 'education'];
+    var tabKeys = tabOrder.filter(function (k) { return data.tabs[k]; });
     var menuHtml = '';
     var contentHtml = '';
 
@@ -151,13 +186,7 @@
     var html = '<div class="tab-content' + activeClass + '" data-tab="' + key + '">';
     html += '<div class="block"><h1>' + esc(tab.title) + '</h1>';
 
-    /* Profile has a special quote block */
-    if (key === 'profile' && tab.quote) {
-      html += '<blockquote class="profile_quote">' +
-        '<p>"' + esc(tab.quote.text) + '"</p>' +
-        '<p>' + esc(tab.quote.author) + '.</p>' +
-        '<span class="entypo-quote"></span></blockquote>';
-    }
+    /* Profile has a special quote block — removed by design */
     html += '</div>';
 
     /* Profile sections */
@@ -209,6 +238,8 @@
   function initTabs() {
     var tabLinks = document.querySelectorAll('.header_menu a[data-tab]');
     var tabContents = document.querySelectorAll('.tab-content');
+    var leftCol = document.getElementById('left_col');
+    var isMobile = function () { return window.innerWidth <= 980; };
 
     tabLinks.forEach(function (link) {
       link.addEventListener('click', function (e) {
@@ -216,8 +247,21 @@
         tabLinks.forEach(function (l) { l.classList.remove('active'); });
         tabContents.forEach(function (tc) { tc.classList.remove('active'); });
         this.classList.add('active');
-        var target = document.querySelector('.tab-content[data-tab="' + this.getAttribute('data-tab') + '"]');
+        var tabKey = this.getAttribute('data-tab');
+        var target = document.querySelector('.tab-content[data-tab="' + tabKey + '"]');
         if (target) target.classList.add('active');
+
+        /* On mobile: hide left pane for non-Profile tabs, show for Profile */
+        if (isMobile()) {
+          if (tabKey === 'profile') {
+            leftCol.classList.remove('hidden-mobile');
+          } else {
+            leftCol.classList.add('hidden-mobile');
+            /* scroll to content so the user sees the new tab */
+            var contentEl = document.getElementById('content_container');
+            if (contentEl) contentEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
       });
     });
   }
