@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pritam Pawar — Technical Architect</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- MAIN CONTAINER -->
+<div id="main_container">
+  <!-- HEADER -->
+  <div id="header">
+    <!-- LOGOTYPE/NAME -->
+    <div class="header_logotype_container">
+      <h1 class="logotype_name" id="header-name"></h1>
+      <h2 class="logotype_occupation" id="header-occupation"></h2>
+    </div>
+    <!-- MAIN MENU -->
+    <div class="header_menu_container">
+      <ul class="download_print_buttons horizontal_list">
+        <li><a href="PritamPawar_Valencia.pdf" download="PritamPawar_Resume.pdf"><span class="icon entypo-download"></span>Download CV</a></li>
+        <li><a href="#" onclick="window.print(); return false;"><span class="icon entypo-print"></span>Print CV</a></li>
+      </ul>
+      <div class="clear"></div>
+      <ul class="header_menu horizontal_list" id="tab-menu"></ul>
+    </div>
+  </div>
+
+  <!-- LEFT COL -->
+  <div id="left_col">
+    <div class="profile_frame">
+      <div class="profile_picture"></div>
+    </div>
+    <div class="hello_content" id="sidebar-greeting"></div>
+    <div class="contact_details_content" id="sidebar-contact"></div>
+    <a id="sidebar-email-btn" href="#" class="send_message_button">
+      <span class="cut1"></span>
+      <span class="cut2"></span>
+      <span class="content">Send me a message <span class="fontawesome-double-angle-right"></span></span>
+    </a>
+    <div class="get_social_content">
+      <h2>Get social</h2>
+      <ul class="social_icons horizontal_list" id="sidebar-social"></ul>
+    </div>
+  </div>
+
+  <!-- TAB CONTENT SECTIONS -->
+  <div id="content_container"></div>
+
+  <div class="clear"></div>
+
+  <!-- FOOTER -->
+  <div id="footer">
+    <p class="footer_name" id="footer-text"></p>
+  </div>
+</div>
+
+<!-- LOAD RESUME DATA (edit resumeData.js to update your content) -->
+<script src="resumeData.js"></script>
+
+<!-- DATA-DRIVEN RENDERING SCRIPT -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    renderResume(resumeData);
+  });
+
+  /* ── helpers ── */
+  function esc(text) {
+    var d = document.createElement('div');
+    d.textContent = text;
+    return d.innerHTML;
+  }
+
+  function horizontalLine() {
+    return '<div class="horizontal_line">' +
+      '<div class="line_left"></div>' +
+      '<div class="left_circle"></div>' +
+      '<div class="central_circle"></div>' +
+      '<div class="right_circle"></div>' +
+      '<div class="line_right"></div>' +
+    '</div>';
+  }
+
+  function listItems(items) {
+    if (!items || !items.length) return '';
+    return '<ul>' + items.map(function (i) { return '<li>' + esc(i) + '</li>'; }).join('') + '</ul>';
+  }
+
+  /* ── main renderer ── */
+  function renderResume(data) {
+    /* Header */
+    document.getElementById('header-name').innerHTML =
+      esc(data.header.name.first) + ' <span class="purple">' + esc(data.header.name.last) + '</span>';
+    document.getElementById('header-occupation').textContent = data.header.occupation;
+
+    /* Sidebar – greeting */
+    var greet = data.sidebar.greeting;
+    document.getElementById('sidebar-greeting').innerHTML =
+      '<h2>' + esc(greet.title) + '</h2><p>' + esc(greet.text) + '</p>';
+
+    /* Sidebar – contact */
+    var c = data.sidebar.contact;
+    var addr = c.address;
+    document.getElementById('sidebar-contact').innerHTML =
+      '<h2>Contact details</h2>' +
+      '<p class="purple">Phone:</p><p>' + esc(c.phone) + '</p>' +
+      '<p class="purple">Email:</p><p>' + esc(c.email) + '</p>' +
+      '<p class="purple">Address:</p>' +
+      '<p>' + esc(addr.street) + '</p>' +
+      '<p>' + esc(addr.city) + '</p>' +
+      '<p>' + esc(addr.zip) + '</p>';
+    document.getElementById('sidebar-email-btn').href = 'mailto:' + c.email;
+
+    /* Sidebar – social */
+    document.getElementById('sidebar-social').innerHTML =
+      data.sidebar.social.map(function (s) {
+        return '<li><a class="' + esc(s.platform) + '" href="' + esc(s.url) + '">' +
+          '<span class="' + esc(s.icon) + '"></span>' +
+          '<span class="invisible">' + esc(s.platform) + '</span></a></li>';
+      }).join('');
+
+    /* Tab menu + content */
+    var tabKeys = Object.keys(data.tabs);
+    var menuHtml = '';
+    var contentHtml = '';
+
+    tabKeys.forEach(function (key, idx) {
+      var tab = data.tabs[key];
+      var isFirst = idx === 0;
+      var cls = isFirst ? 'no_border active' : '';
+      menuHtml += '<li><a class="' + cls + '" href="#" data-tab="' + key + '">' + esc(tab.title) + '</a></li>';
+      contentHtml += buildTabContent(key, tab, isFirst);
+    });
+
+    document.getElementById('tab-menu').innerHTML = menuHtml;
+    document.getElementById('content_container').innerHTML = contentHtml;
+
+    /* Footer */
+    document.getElementById('footer-text').textContent = data.footer.text;
+
+    /* Wire up tab clicks */
+    initTabs();
+  }
+
+  /* ── tab builders ── */
+  function buildTabContent(key, tab, isFirst) {
+    var activeClass = isFirst ? ' active' : '';
+    var html = '<div class="tab-content' + activeClass + '" data-tab="' + key + '">';
+    html += '<div class="block"><h1>' + esc(tab.title) + '</h1>';
+
+    /* Profile has a special quote block */
+    if (key === 'profile' && tab.quote) {
+      html += '<blockquote class="profile_quote">' +
+        '<p>"' + esc(tab.quote.text) + '"</p>' +
+        '<p>' + esc(tab.quote.author) + '.</p>' +
+        '<span class="entypo-quote"></span></blockquote>';
+    }
+    html += '</div>';
+
+    /* Profile sections */
+    if (tab.sections) {
+      tab.sections.forEach(function (sec, i) {
+        if (i > 0) html += horizontalLine();
+        var isLast = i === tab.sections.length - 1;
+        html += '<div class="' + (isLast ? 'last ' : '') + 'block">';
+        html += '<h2>' + esc(sec.heading) + '</h2>';
+        if (sec.paragraphs) {
+          sec.paragraphs.forEach(function (p) { html += '<p>' + esc(p) + '</p>'; });
+        }
+        html += listItems(sec.items);
+        html += '<div class="clear"></div></div>';
+      });
+    }
+
+    /* Skills categories */
+    if (tab.categories) {
+      tab.categories.forEach(function (cat, i) {
+        if (i > 0) html += horizontalLine();
+        var isLast = i === tab.categories.length - 1;
+        html += '<div class="' + (isLast ? 'last ' : '') + 'block">';
+        html += '<h2>' + esc(cat.heading) + '</h2>';
+        html += listItems(cat.items);
+        html += '</div>';
+      });
+    }
+
+    /* Generic entries (education, work, projects, awards) */
+    if (tab.entries) {
+      tab.entries.forEach(function (entry, i) {
+        if (i > 0) html += horizontalLine();
+        var isLast = i === tab.entries.length - 1;
+        html += '<div class="' + (isLast ? 'last ' : '') + 'block">';
+        html += '<h2>' + esc(entry.heading) + '</h2>';
+        if (entry.subtitle) html += '<h4 class="purple">' + esc(entry.subtitle) + '</h4>';
+        if (entry.description) html += '<p>' + esc(entry.description) + '</p>';
+        html += listItems(entry.items);
+        html += '</div>';
+      });
+    }
+
+    html += '</div>';
+    return html;
+  }
+
+  /* ── tab switching ── */
+  function initTabs() {
+    var tabLinks = document.querySelectorAll('.header_menu a[data-tab]');
+    var tabContents = document.querySelectorAll('.tab-content');
+
+    tabLinks.forEach(function (link) {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        tabLinks.forEach(function (l) { l.classList.remove('active'); });
+        tabContents.forEach(function (tc) { tc.classList.remove('active'); });
+        this.classList.add('active');
+        var target = document.querySelector('.tab-content[data-tab="' + this.getAttribute('data-tab') + '"]');
+        if (target) target.classList.add('active');
+      });
+    });
+  }
+</script>
+
+</body>
+</html>
