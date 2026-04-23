@@ -255,6 +255,7 @@ ul {
 	text-indent: 0 !important;
 	margin-left: 10px;
 	display: inline-flex !important;
+	flex-direction: row !important;
 	align-items: center;
 	border: 1px solid var(--border-light);
 	border-radius: 12px;
@@ -269,7 +270,8 @@ ul {
 		content: none !important;
 	}
 	.lang-toggle a {
-		display: block;
+		display: inline-block !important;
+		float: none !important;
 		text-decoration: none;
 		font-family: 'Lato', Helvetica, sans-serif;
 		font-size: 10px;
@@ -283,6 +285,7 @@ ul {
 		cursor: pointer;
 		line-height: 1.5;
 		border: none;
+		white-space: nowrap;
 	}
 	.lang-toggle a:hover {
 		color: var(--accent);
