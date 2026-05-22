@@ -382,6 +382,11 @@ ul {
 			color: #fff;
 			border-radius: 50px;
 		}
+		.social_icons .github:hover{
+			background: #333;
+			color: #fff;
+			border-radius: 50px;
+		}
 
 .footer_name {
 	font-style: italic;

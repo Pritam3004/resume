@@ -22,7 +22,7 @@
     <!-- MAIN MENU -->
     <div class="header_menu_container">
       <ul class="download_print_buttons horizontal_list">
-        <li><a href="PritamPawar_Valencia.pdf" target="_blank" rel="noopener"><span class="icon fa-solid fa-file-pdf"></span><span id="btn-pdf">PDF Resume</span></a></li>
+        <li><a id="pdf-link" href="docs/PritamPawar_2026_en.pdf" target="_blank" rel="noopener"><span class="icon fa-solid fa-file-pdf"></span><span id="btn-pdf">PDF Resume</span></a></li>
         <li class="lang-toggle">
           <a href="#" id="lang-en" class="active" onclick="switchLang('en'); return false;">EN</a>
           <a href="#" id="lang-es" onclick="switchLang('es'); return false;">ES</a>
@@ -57,8 +57,8 @@
   </div>
 </div>
 
-<!-- LOAD RESUME DATA (edit resumeData.js to update your content) -->
-<script src="resumeData.js"></script>
+<!-- LOAD RESUME DATA (edit resumeData_v2.js to update your content) -->
+<script src="resumeData_v2.js"></script>
 
 <!-- DATA-DRIVEN RENDERING SCRIPT -->
 <script>
@@ -79,6 +79,9 @@
     /* update lang button states */
     document.getElementById('lang-en').classList.toggle('active', lang === 'en');
     document.getElementById('lang-es').classList.toggle('active', lang === 'es');
+
+    /* update PDF download link */
+    document.getElementById('pdf-link').href = 'docs/PritamPawar_2026_' + lang + '.pdf';
 
     /* re-render */
     renderResume(resumeData[lang]);
